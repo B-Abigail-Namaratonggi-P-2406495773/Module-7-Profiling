@@ -116,9 +116,4 @@ Jika Profiler menunjukkan kode sudah cepat tapi JMeter masih lambat, masalahnya 
 Ya, terdapat peningkatan performa yang sangat signifikan dari hasil pengukuran JMeter. Sebelum optimasi, aplikasi berjalan lambat karena adanya *N+1 query problem* dan inefisiensi pencarian di level Java yang membebani memori dan CPU.
 
 Setelah melakukan *refactoring*, seperti menerapkan `JOIN FETCH`, menggunakan *projection*, dan mendelegasikan proses *sorting* ke level *database*, *Sample Time* (waktu respons) pada JMeter menurun drastis. Metode `getAllStudentsWithCourses` berhasil berkurang dari 15.935 ms menjadi hanya 3.748 ms (terjadi peningkatan performa lebih dari 75%). Begitu juga dengan metode `findStudentWithHighestGpa` dan `joinStudentNames`. Aplikasi jadi mampu menangani *request* dengan jauh lebih cepat, efisien, dan stabil.
-
-**Sebelum refactoring**
-![sebelum](Screenshots/Screenshot%202026-04-28%20081153.png)
-**Sesudah refactoring**
-![sesudah](Screenshots/Screenshot%202026-04-28%20083157.png)
 </details>
