@@ -7,9 +7,9 @@
 * Results Tree
 ![results Tree](Screenshots/Screenshot%202026-04-28%20100658.png)
 * Summary Reports
-![sum-reports](Screenshots/Screenshot 2026-04-28 100724.png)
+![sum-reports](Screenshots/Screenshot%202026-04-28%20100724.png)
 * Graph Results
-![graph](Screenshots/Screenshot 2026-04-28 100731.png)
+![graph](Screenshots/Screenshot%202026-04-28%20100731.png)
 * Results Table
 ![tables](Screenshots/Screenshot%202026-04-28%20100737.png)
 
@@ -18,9 +18,9 @@
 * Results Tree
   ![results Tree](Screenshots/Screenshot%202026-04-28%20100912.png)
 * Summary Reports
-  ![sum-reports](Screenshots/Screenshot 2026-04-28 100933.png)
+  ![sum-reports](Screenshots/Screenshot%202026-04-28%20100933.png)
 * Graph Results
-  ![graph](Screenshots/Screenshot 2026-04-28 100939.png)
+  ![graph](Screenshots/Screenshot%202026-04-28%20100939.png)
 * Results Table
   ![tables](Screenshots/Screenshot%202026-04-28%20100944.png)
 
@@ -29,9 +29,9 @@
 * Results Tree
   ![results Tree](Screenshots/Screenshot%202026-04-28%20101202.png)
 * Summary Reports
-  ![sum-reports](Screenshots/Screenshot 2026-04-28 101208.png)
+  ![sum-reports](Screenshots/Screenshot%202026-04-28%20101208.png)
 * Graph Results
-  ![graph](Screenshots/Screenshot 2026-04-28 101213.png)
+  ![graph](Screenshots/Screenshot%202026-04-28%20101213.png)
 * Results Table
   ![tables](Screenshots/Screenshot%202026-04-28%20101219.png)
 
@@ -42,7 +42,7 @@
 #### /all-student-name
 ![all-stud-name](Screenshots/Screenshot%202026-04-28%20103037.png)
 #### /highest-gpa
-![highest-gpa](Screenshots/Screenshot 2026-04-28 061405.png)
+![highest-gpa](Screenshots/Screenshot%202026-04-28%20061405.png)
 </details>
 
 <details>
@@ -78,7 +78,7 @@ Ya, terdapat peningkatan performa yang sangat signifikan dari hasil pengukuran J
 Setelah melakukan *refactoring*, seperti menerapkan `JOIN FETCH`, menggunakan *projection*, dan mendelegasikan proses *sorting* ke level *database*, *Sample Time* (waktu respons) pada JMeter menurun drastis. Metode `getAllStudentsWithCourses` berhasil berkurang dari 15.935 ms menjadi hanya 3.748 ms (terjadi peningkatan performa lebih dari 75%). Begitu juga dengan metode `findStudentWithHighestGpa` dan `joinStudentNames`. Aplikasi jadi mampu menangani *request* dengan jauh lebih cepat, efisien, dan stabil.
 
 **Sebelum refactoring**
-![sebelum](Screenshots/Screenshot 2026-04-28 081153.png)
+![sebelum](Screenshots/Screenshot%202026-04-28%20081153.png)
 **Sesudah refactoring**
-![sesudah](Screenshots/Screenshot 2026-04-28 083157.png)
+![sesudah](Screenshots/Screenshot%202026-04-28%20083157.png)
 </details>
