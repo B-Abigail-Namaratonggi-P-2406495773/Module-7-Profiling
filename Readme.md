@@ -15,38 +15,38 @@
 
 ### 1. `all_student`
 
-| Before Optimization | After Optimization |
-|-----------------|--------------------|
-| ![img.png](Screenshots/Screenshot%202026-04-28%20100737.png) | |
-| ![img_3.png](Screenshots/Screenshot%202026-04-28%20102213.png) | |
+| Before Optimization | After Optimization                                       |
+|-----------------|----------------------------------------------------------|
+| ![img.png](Screenshots/Screenshot%202026-04-28%20100737.png) | ![img](Screenshots/Screenshot%202026-04-28%20200956.png) |
+| ![img_3.png](Screenshots/Screenshot%202026-04-28%20102213.png) | ![img](Screenshots/Screenshot%202026-04-28%20201609.png)    |
 
 ---
 
 ### 2. `all_student_name`
 
-| Before Optimization | After Optimization |
-|----------------|--------------------|
-| ![img_1.png](Screenshots/Screenshot%202026-04-28%20100944.png) |  |
-| ![img_4.png](Screenshots/Screenshot%202026-04-28%20103037.png) |  |
+| Before Optimization | After Optimization                                       |
+|----------------|----------------------------------------------------------|
+| ![img_1.png](Screenshots/Screenshot%202026-04-28%20100944.png) | ![img](Screenshots/Screenshot%202026-04-28%20201725.png) |
+| ![img_4.png](Screenshots/Screenshot%202026-04-28%20103037.png) | ![img](Screenshots/Screenshot%202026-04-28%20201851.png) |
 
 ---
 
 ### 3. `highest_gpa`
 
-| Before Optimization | After Optimization |
-|----------------|--------------------|
-| ![img_2.png](Screenshots/Screenshot%202026-04-28%20101219.png) | |
-| ![img_5.png](Screenshots/Screenshot%202026-04-28%20061405.png) |  |
+| Before Optimization | After Optimization                                       |
+|----------------|----------------------------------------------------------|
+| ![img_2.png](Screenshots/Screenshot%202026-04-28%20101219.png) | ![img](Screenshots/Screenshot%202026-04-28%20202000.png) |
+| ![img_5.png](Screenshots/Screenshot%202026-04-28%20061405.png) | ![img](Screenshots/Screenshot%202026-04-28%20202058.png)  |
 
 ---
 
 ## Profiling Results
 
-| Endpoint | Before Optimization             | After Optimization |
-|----------|---------------------------------|--------------------|
-| `all_student` | ![img.png](Screenshots/img.png) |  |
-| `all_student_name` | ![img.png](Screenshots/img2.png)|  |
-| `highest_gpa` | ![img.png](Screenshots/img3.png) |  |
+| Endpoint | Before Optimization             | After Optimization                                       |
+|----------|---------------------------------|----------------------------------------------------------|
+| `all_student` | ![img.png](Screenshots/img.png) | ![img](Screenshots/Screenshot%202026-04-28%20202506.png) |
+| `all_student_name` | ![img.png](Screenshots/img2.png)| ![img](Screenshots/Screenshot%202026-04-28%20202804.png) |
+| `highest_gpa` | ![img.png](Screenshots/img3.png) | ![img](Screenshots/Screenshot%202026-04-28%20203009.png) |
 
 ---
 
@@ -56,45 +56,31 @@
 
 Berdasarkan pengujian dengan Apache JMeter (10 sampel per endpoint), terjadi peningkatan performa. Ringkasan perbandingannya adalah sebagai berikut:
 
-| Endpoint | Rata-rata Sebelum (ms) | Rata-rata Sesudah (ms) | Peningkatan |
-|----------|------------------------|----------------|--------------|
-| `all_student` | ~459.029               | ~ | **~ lebih cepat** |
-| `all_student_name` | ~16.992                | ~ | **~ lebih cepat** |
-| `highest_gpa` | ~1.639                 | ~ | **~ lebih cepat** |
+| Endpoint | Rata-rata Sebelum (ms) | Rata-rata Sesudah (ms) | Peningkatan             |
+|----------|------------------------|------------------------|-------------------------|
+| `all_student` | ~459.029               | ~5.455                 | **~98.81% lebih cepat** |
+| `all_student_name` | ~16.992                | ~2.120                 | **~87.52% lebih cepat** |
+| `highest_gpa` | ~1.639                 | ~16                    | **~99.02% lebih cepat** |
 
 ---
 
 ### Analisis per Endpoint
-
 #### 1. `/all-student`
-
-Sebelum optimasi, endpoint ini memiliki rata-rata waktu respons yang sangat lambat, sekitar **133.859 ms** (lebih dari 2 menit). Dari hasil profiling, ditemukan bahwa metode StudentService.getAllStudentsWithCourses() mengonsumsi sekitar 96-99% dari total waktu eksekusi, terutama karena memuat seluruh data relasi StudentCourse sekaligus (masalah N+1).
-
-Setelah optimasi, rata-rata waktu respons turun drastis menjadi hanya sekitar **789 ms**, peningkatan sebesar ~99,4%. Optimasi berhasil mengatasi bottleneck pada query database sehingga waktu respons menjadi jauh lebih cepat.
-
----
+Sebelum optimasi, endpoint ini memiliki rata-rata waktu respons yang sangat lambat, mencapai **459.029 ms** (sekitar 7,6 menit). Dari hasil *profiling*, ditemukan bahwa metode `StudentService.getAllStudentsWithCourses()` mengonsumsi persentase waktu terbesar karena memuat relasi *course* secara satu-per-satu (*masalah N+1 query*). Setelah optimasi dengan `JOIN FETCH`, rata-rata waktu respons turun drastis menjadi hanya **5.455 ms**, sebuah peningkatan sebesar **~98.81%**.
 
 #### 2. `/all-student-name`
-
-Sebelum optimasi, endpoint ini memiliki rata-rata waktu respons sekitar **3.285 ms**. Dari hasil profiling, StudentService.joinStudentNames() ditemukan sebagai bottleneck utama yang mengonsumsi 91-100% dari waktu eksekusi.
-
-Setelah dilakukan optimasi, rata-rata waktu respons turun drastis menjadi hanya sekitar **202 ms**, peningkatan sebesar ~94%. Hal ini menunjukkan bahwa optimasi pada cara penggabungan nama mahasiswa sangat efektif.
-
----
+Sebelum optimasi, endpoint ini memakan waktu rata-rata **16.992 ms**. *Profiling* menunjukkan `StudentService.joinStudentNames()` menjadi *bottleneck* karena aplikasi memuat seluruh entitas data mahasiswa ke dalam memori RAM padahal hanya butuh namanya saja. Setelah dioptimasi menggunakan teknik *Projection* (hanya mengambil kolom nama dari *database*), rata-rata waktu respons turun menjadi **2.120 ms**, memberikan peningkatan sebesar **~87.52%**.
 
 #### 3. `/highest-gpa`
-
-Endpoint ini mengalami peningkatan performa paling dramatis. Sebelum optimasi, rata-rata waktu respons mencapai **5.679 ms** Profiling menunjukkan bahwa StudentService.findStudentWithHighestGpa() mengonsumsi 100% dari waktu eksekusi endpoint ini.
-
-Setelah optimasi, rata-rata waktu respons turun menjadi hanya **15 ms**, peningkatan sebesar ~99,7%. Optimasi kemungkinan dilakukan dengan menggunakan query database yang langsung mengembalikan mahasiswa dengan GPA tertinggi tanpa perlu memuat seluruh daftar mahasiswa terlebih dahulu.
+Sebelum optimasi, rata-rata waktu respons mencapai **1.639 ms** karena aplikasi menarik seluruh data mahasiswa dari *database* lalu melakukan *looping* untuk mencari IPK tertinggi secara manual di dalam memori Java. Setelah mendelegasikan proses *sorting* dan limitasi tersebut langsung ke tingkat *database*, waktu responsnya menyusut sangat tajam menjadi hanya **16 ms**, mencatat peningkatan **~99.02%**.
 
 ---
 
-### Kesimpulan Umum
+### Kesimpulan Evaluasi Performa
 
-Proses profiling menggunakan IntelliJ Profiler berhasil mengidentifikasi bottleneck utama pada ketiga endpoint. Setelah dilakukan optimasi kode pada StudentService, performa aplikasi meningkat secara signifikan pada ketiga endpoint.
+Ya, terdapat peningkatan performa yang sangat signifikan dari hasil pengukuran JMeter. Sebelum optimasi, aplikasi berjalan lambat karena adanya *N+1 query problem* dan inefisiensi pencarian di level Java yang membebani memori dan CPU.
 
-Ya, terdapat peningkatan performa yang jelas dari hasil pengukuran JMeter setelah optimasi dilakukan.
+Setelah melakukan *refactoring*, seperti menerapkan `JOIN FETCH`, menggunakan *projection*, dan mendelegasikan proses *sorting* ke level *database*, *Sample Time* (waktu respons) pada JMeter menurun drastis. Aplikasi kini mampu menangani *request* dengan jauh lebih cepat, efisien, dan stabil.
 
 ---
 </details>
