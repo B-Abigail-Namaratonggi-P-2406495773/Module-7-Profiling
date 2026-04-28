@@ -65,14 +65,14 @@ Berdasarkan pengujian dengan Apache JMeter (10 sampel per endpoint), terjadi pen
 ---
 
 ### Analisis per Endpoint
-#### 1. `/all-student`
-Sebelum optimasi, endpoint ini memiliki rata-rata waktu respons yang sangat lambat, mencapai **459.029 ms** (sekitar 7,6 menit). Dari hasil *profiling*, ditemukan bahwa metode `StudentService.getAllStudentsWithCourses()` mengonsumsi persentase waktu terbesar karena memuat relasi *course* secara satu-per-satu (*masalah N+1 query*). Setelah optimasi dengan `JOIN FETCH`, rata-rata waktu respons turun drastis menjadi hanya **5.455 ms**, sebuah peningkatan sebesar **~98.81%**.
+#### `/all-student`
+Pada pengujian awal, *endpoint* ini mencatat waktu respons **459.029 ms** (hampir 8 menit). Penyebabnya terletak pada eksekusi `StudentService.getAllStudentsWithCourses()` yang terjebak dalam masalah *N+1 query*. Sistem memanggil *database* berulang kali secara tidak efisien. Saat querynya diubah menggunakan `JOIN FETCH`, waktu prosesnya menurun ke angka **5.455 ms** saja.
 
-#### 2. `/all-student-name`
-Sebelum optimasi, endpoint ini memakan waktu rata-rata **16.992 ms**. *Profiling* menunjukkan `StudentService.joinStudentNames()` menjadi *bottleneck* karena aplikasi memuat seluruh entitas data mahasiswa ke dalam memori RAM padahal hanya butuh namanya saja. Setelah dioptimasi menggunakan teknik *Projection* (hanya mengambil kolom nama dari *database*), rata-rata waktu respons turun menjadi **2.120 ms**, memberikan peningkatan sebesar **~87.52%**.
+#### `/all-student-name`
+Inefisiensi pada *endpoint* ini (dengan waktu awal **16.992 ms**) disebabkan oleh pemborosan alokasi memori. Aplikasi memuat seluruh entitas tabel mahasiswa ke dalam RAM hanya untuk mengekstrak namanya lewat `joinStudentNames()`. Masalah ini diselesaikan dengan menerapkan fitur *Projection* pada *repository*, sehingga *database* murni hanya mengirimkan string nama dan waktu respons berhasil berkurang menjadi **2.120 ms**.
 
-#### 3. `/highest-gpa`
-Sebelum optimasi, rata-rata waktu respons mencapai **1.639 ms** karena aplikasi menarik seluruh data mahasiswa dari *database* lalu melakukan *looping* untuk mencari IPK tertinggi secara manual di dalam memori Java. Setelah mendelegasikan proses *sorting* dan limitasi tersebut langsung ke tingkat *database*, waktu responsnya menyusut sangat tajam menjadi hanya **16 ms**, mencatat peningkatan **~99.02%**.
+#### `/highest-gpa`
+Kasus pencarian IPK tertinggi ini memakan waktu **1.639 ms** karena aplikasi memaksa memori Java untuk melakukan iterasi (*looping*) pada puluhan ribu data. Logika ini kurang tepat sasaran. Solusinya adalah memindahkan beban kerja (*sorting*) tersebut langsung ke *database engine*. Perubahan ini membuat waktu eksekusi menjadi **16 ms** (meningkat lebih dari 99%).
 
 ---
 
